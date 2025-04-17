@@ -125,7 +125,7 @@ def main():
     BATCH_SIZE = 32
     train_loader, val_loader, test_loader, full_dataset = load_and_split_data(dataset_path=DATASET_PATH,transform=transform,batch_size=BATCH_SIZE)
     
-    visualize_class_distribution(full_dataset)
+    #visualize_class_distribution(full_dataset)
     
     return train_loader, val_loader, test_loader, full_dataset
 
