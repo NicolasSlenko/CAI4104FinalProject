@@ -117,7 +117,7 @@ def visualize_class_distribution(full_dataset):
 
 def main():
     """Main function to run the data processing pipeline"""
-    DATASET_PATH = 'C:/Users/nicks/Downloads/project_data'
+    DATASET_PATH = 'SET PATH HERE'
 
     if(DATASET_PATH == 'SET PATH HERE'):
         raise ValueError("Please set the dataset path")
