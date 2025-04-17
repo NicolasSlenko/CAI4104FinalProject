@@ -103,7 +103,6 @@ def visualize_class_distribution(full_dataset):
     for _, label in full_dataset:
         class_counts[class_names[label]] += 1
     
-    # Plot
     plt.figure(figsize=(12, 6))
     plt.bar(class_counts.keys(), class_counts.values())
     plt.xticks(rotation=45, ha='right')
@@ -119,6 +118,10 @@ def visualize_class_distribution(full_dataset):
 def main():
     """Main function to run the data processing pipeline"""
     DATASET_PATH = 'C:/Users/nicks/Downloads/project_data'
+
+    if(DATASET_PATH == 'SET PATH HERE'):
+        raise ValueError("Please set the dataset path")
+    
     USE_GRAYSCALE = False
     
     transform = get_transforms(use_grayscale=USE_GRAYSCALE)
@@ -130,5 +133,4 @@ def main():
     return train_loader, val_loader, test_loader, full_dataset
 
 if __name__ == "__main__":
-    # Execute the data processing pipeline when the script is run
     train_loader, val_loader, test_loader, full_dataset = main()
