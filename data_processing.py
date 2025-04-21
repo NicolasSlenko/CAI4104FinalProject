@@ -30,7 +30,8 @@ def get_transforms(use_grayscale=False):
             transforms.Resize((128, 128)), 
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.3, hue=0.3),
+            #transforms.GaussianBlur((3,3)),
+            #transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.3, hue=0.3),
             transforms.ToTensor(),   
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
         ])
@@ -128,7 +129,7 @@ def preprocessing():
     USE_GRAYSCALE = False
     
     transform = get_transforms(use_grayscale=USE_GRAYSCALE)
-    BATCH_SIZE = 128
+    BATCH_SIZE = 32
     train_loader, val_loader, test_loader, full_dataset = load_and_split_data(dataset_path=DATASET_PATH,transform=transform,batch_size=BATCH_SIZE, train_size=0.85, val_size=0.075, test_size=0.075)
     
     #visualize_class_distribution(full_dataset)
