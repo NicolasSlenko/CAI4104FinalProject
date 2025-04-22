@@ -174,7 +174,7 @@ if __name__ == "__main__":
                         help="Directory containing the test dataset with class subfolders")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for testing")
     parser.add_argument("--num_workers", type=int, default=2, help="Number of workers for DataLoader")
-    parser.add_argument("--image_size", type=int, default=224, help="Input image size")
+    parser.add_argument("--image_size", type=int, default=128, help="Input image size")
     parser.add_argument("--group_id", type=int, required=True, help="Project Group ID (non-negative integer)")
     parser.add_argument("--project_title", type=str, required=True, help="Project Title (at least 4 characters)")
 
