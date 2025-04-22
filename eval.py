@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-""" CAI4104 -- Project -- eval.py
+"""CAI4104 -- Project -- eval.py
 
 This file contains the evaluation code to load a trained model from a specified checkpoint, evaluate it on a test dataset, and report performance. We will run this script on the test dataset to evaluate the model's performance.
 use the command:
@@ -29,7 +29,10 @@ from model_setup import create_compile_model
 
 ######### Functions #########
 
-def load_test_dataset(data_dir: str, batch_size: int, num_workers: int, image_size: int):
+
+def load_test_dataset(
+    data_dir: str, batch_size: int, num_workers: int, image_size: int
+):
     """
     Loads the test dataset from a given directory. The directory must contain subfolders
     for each class (like in training). Applies only evaluation transforms.
@@ -43,26 +46,27 @@ def load_test_dataset(data_dir: str, batch_size: int, num_workers: int, image_si
     Returns:
         DataLoader: DataLoader object for the test dataset.
     """
-    test_transforms = transforms.Compose([
-        transforms.Resize((image_size, image_size)), 
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.5, 0.5, 0.5],
-            std=[0.5, 0.5, 0.5]
-        )
-    ])
+    test_transforms = transforms.Compose(
+        [
+            transforms.Resize((image_size, image_size)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+        ]
+    )
     test_dataset = datasets.ImageFolder(root=data_dir, transform=test_transforms)
     test_loader = DataLoader(
         test_dataset,
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
-        pin_memory=True
+        pin_memory=True,
     )
     return test_loader
 
 
-def load_trained_model(model_path: str, num_classes: int, device: str, image_size: int = 224):
+def load_trained_model(
+    model_path: str, num_classes: int, device: str, image_size: int = 128
+):
     """
     Builds your model architecture, adjusts the classification head to
     the given number of classes, and loads the trained model weights from a local file.
@@ -78,7 +82,7 @@ def load_trained_model(model_path: str, num_classes: int, device: str, image_siz
     """
 
     model = create_compile_model(channel=3)
-    
+
     ## Change/rewrite the rest of the function as needed, but make sure what it outputs works with the other functions (e.g., predict)
 
     # Load local state dictionary
@@ -124,7 +128,7 @@ def evaluate_model(model, test_loader, device):
     running_loss = 0.0
     correct = 0
     total = 0
-    
+
     class_correct = [0] * len(test_loader.dataset.classes)
     class_total = [0] * len(test_loader.dataset.classes)
 
@@ -137,18 +141,17 @@ def evaluate_model(model, test_loader, device):
             _, preds = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (preds == labels).sum().item()
-            
+
             # Per-class accuracy
             for i in range(labels.size(0)):
                 label = labels[i]
                 pred = preds[i]
                 class_correct[label] += (pred == label).item()
                 class_total[label] += 1
-                
 
     test_loss = running_loss / total
     test_accuracy = correct / total
-    
+
     # Print per-class accuracy
     print("\nPer-class accuracy:")
     for i, class_name in enumerate(test_loader.dataset.classes):
@@ -157,7 +160,7 @@ def evaluate_model(model, test_loader, device):
             print(f"    {class_name}: {accuracy:.2f}%")
         else:
             print(f"    {class_name}: N/A (no test samples)")
-    
+
     return test_loss, test_accuracy
 
 
@@ -168,15 +171,37 @@ if __name__ == "__main__":
 
     # Parse command-line arguments.
     parser = argparse.ArgumentParser(description="Eval script for CAI4104 project")
-    parser.add_argument("--model_path", type=str, required=True,
-                        help="Path to the trained model checkpoint (e.g., models/trained_model.pth)")
-    parser.add_argument("--test_data", type=str, default="project_test_data",
-                        help="Directory containing the test dataset with class subfolders")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for testing")
-    parser.add_argument("--num_workers", type=int, default=2, help="Number of workers for DataLoader")
-    parser.add_argument("--image_size", type=int, default=224, help="Input image size")
-    parser.add_argument("--group_id", type=int, required=True, help="Project Group ID (non-negative integer)")
-    parser.add_argument("--project_title", type=str, required=True, help="Project Title (at least 4 characters)")
+    parser.add_argument(
+        "--model_path",
+        type=str,
+        required=True,
+        help="Path to the trained model checkpoint (e.g., models/trained_model.pth)",
+    )
+    parser.add_argument(
+        "--test_data",
+        type=str,
+        default="project_test_data",
+        help="Directory containing the test dataset with class subfolders",
+    )
+    parser.add_argument(
+        "--batch_size", type=int, default=32, help="Batch size for testing"
+    )
+    parser.add_argument(
+        "--num_workers", type=int, default=2, help="Number of workers for DataLoader"
+    )
+    parser.add_argument("--image_size", type=int, default=128, help="Input image size")
+    parser.add_argument(
+        "--group_id",
+        type=int,
+        required=True,
+        help="Project Group ID (non-negative integer)",
+    )
+    parser.add_argument(
+        "--project_title",
+        type=str,
+        required=True,
+        help="Project Title (at least 4 characters)",
+    )
 
     args = parser.parse_args()
 
@@ -191,15 +216,21 @@ if __name__ == "__main__":
     st = time.time()
 
     # Header.
-    print('\n---------- [Eval] (Project: {}, Group: {}) ---------'.format(project_title, project_group_id))
+    print(
+        "\n---------- [Eval] (Project: {}, Group: {}) ---------".format(
+            project_title, project_group_id
+        )
+    )
 
     # Determine the device.
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Evaluation device:", device)
 
     # Load test data.
-    test_loader = load_test_dataset(args.test_data, args.batch_size, args.num_workers, args.image_size)
-    
+    test_loader = load_test_dataset(
+        args.test_data, args.batch_size, args.num_workers, args.image_size
+    )
+
     # Grab number of classes from the test dataset. (Should be 12)
     num_classes = len(test_loader.dataset.classes)
     print("Number of classes:", num_classes)
@@ -210,11 +241,19 @@ if __name__ == "__main__":
 
     # Evaluate the model on test data.
     test_loss, test_accuracy = evaluate_model(model, test_loader, device)
-    print("Test Loss: {:.4f}, Test Accuracy: {:.2f}%".format(test_loss, test_accuracy * 100))
+    print(
+        "Test Loss: {:.4f}, Test Accuracy: {:.2f}%".format(
+            test_loss, test_accuracy * 100
+        )
+    )
 
     # Elapsed time.
     et = time.time()
     elapsed = et - st
-    print('---------- [Eval] Elapsed time -- total: {:.1f} seconds ---------\n'.format(elapsed))
+    print(
+        "---------- [Eval] Elapsed time -- total: {:.1f} seconds ---------\n".format(
+            elapsed
+        )
+    )
 
     sys.exit(exit_code)
