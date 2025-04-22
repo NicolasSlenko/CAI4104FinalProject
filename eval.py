@@ -171,37 +171,15 @@ if __name__ == "__main__":
 
     # Parse command-line arguments.
     parser = argparse.ArgumentParser(description="Eval script for CAI4104 project")
-    parser.add_argument(
-        "--model_path",
-        type=str,
-        required=True,
-        help="Path to the trained model checkpoint (e.g., models/trained_model.pth)",
-    )
-    parser.add_argument(
-        "--test_data",
-        type=str,
-        default="project_test_data",
-        help="Directory containing the test dataset with class subfolders",
-    )
-    parser.add_argument(
-        "--batch_size", type=int, default=32, help="Batch size for testing"
-    )
-    parser.add_argument(
-        "--num_workers", type=int, default=2, help="Number of workers for DataLoader"
-    )
+    parser.add_argument("--model_path", type=str, required=True,
+                        help="Path to the trained model checkpoint (e.g., models/trained_model.pth)")
+    parser.add_argument("--test_data", type=str, default="project_test_data",
+                        help="Directory containing the test dataset with class subfolders")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for testing")
+    parser.add_argument("--num_workers", type=int, default=2, help="Number of workers for DataLoader")
     parser.add_argument("--image_size", type=int, default=128, help="Input image size")
-    parser.add_argument(
-        "--group_id",
-        type=int,
-        required=True,
-        help="Project Group ID (non-negative integer)",
-    )
-    parser.add_argument(
-        "--project_title",
-        type=str,
-        required=True,
-        help="Project Title (at least 4 characters)",
-    )
+    parser.add_argument("--group_id", type=int, required=True, help="Project Group ID (non-negative integer)")
+    parser.add_argument("--project_title", type=str, required=True, help="Project Title (at least 4 characters)")
 
     args = parser.parse_args()
 
