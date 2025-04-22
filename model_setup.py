@@ -4,6 +4,7 @@ import ignite.metrics
 import torch
 import time
 import ignite
+import os
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -76,6 +77,11 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
 
     scheduler = ReduceLROnPlateau(optimizer, 'max', factor=0.5, patience=4)
 
+    os.makedirs("checkpoints", exist_ok=True)
+    early_stop_path = "checkpoints/early_stop_model.pth"
+    best_model_state = None
+    
+
     start = time.time()
     for epoch in range(max_epochs):
         model.train()
@@ -126,13 +132,19 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
         if val_loss < best_val_loss:
             patience_count = 0
             best_val_loss = val_loss
+            best_model_state = model.state_dict().copy()
         else:
             patience_count += 1
             print("worse")
             if patience <= patience_count:
-              print(f"Early stopping on epoch {epoch+1}")
-              break
+                print(f"Early stopping on epoch {epoch+1}")
+                torch.save(model.state_dict(), early_stop_path) # save early stop checkpoint                                                                                       
+                break
     end = time.time()
 
     elapsed_training_time = end-start
     print(f'Training and Validation time: {elapsed_training_time}')
+    # Save the model after training is complete
+    model_path = "checkpoints/final_model.pth"
+    torch.save(model.state_dict(), model_path)
+    
