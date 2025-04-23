@@ -19,7 +19,15 @@ def get_transforms(use_grayscale=False):
         transforms.Compose: The transformation pipeline
     """
     if use_grayscale:
-        transform = transforms.Compose(
+        train_transform = transforms.Compose(
+            [
+                transforms.Grayscale(num_output_channels=1),
+                transforms.Resize((128, 128)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5,), (0.5,)),
+            ]
+        )
+        eval_transform = transforms.Compose(
             [
                 transforms.Grayscale(num_output_channels=1),
                 transforms.Resize((128, 128)),
@@ -29,7 +37,7 @@ def get_transforms(use_grayscale=False):
         )
         print("Using GRAYSCALE images")
     else:
-        transform = transforms.Compose(
+        train_transform = transforms.Compose(
             [
                 transforms.Resize((128, 128)),
                 transforms.RandomHorizontalFlip(),
@@ -40,14 +48,22 @@ def get_transforms(use_grayscale=False):
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
+        eval_transform = transforms.Compose(
+            [
+                transforms.Resize((128, 128)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]
+        )
         print("Using COLOR images")
 
-    return transform
+    return train_transform, eval_transform
 
 
 def load_and_split_data(
     dataset_path,
-    transform,
+    train_transform,
+    eval_transform,
     train_size=0.7,
     val_size=0.15,
     test_size=0.15,
@@ -73,7 +89,7 @@ def load_and_split_data(
     if abs(train_size + val_size + test_size - 1.0) > 1e-10:
         raise ValueError("Train, validation, and test sizes must sum to 1")
 
-    full_dataset = datasets.ImageFolder(root=dataset_path, transform=transform)
+    full_dataset = datasets.ImageFolder(root=dataset_path)
     indices = list(range(len(full_dataset)))
     temp_size = val_size + test_size
 
@@ -88,6 +104,10 @@ def load_and_split_data(
     train_dataset = torch.utils.data.Subset(full_dataset, train_indices)
     val_dataset = torch.utils.data.Subset(full_dataset, val_indices)
     test_dataset = torch.utils.data.Subset(full_dataset, test_indices)
+    
+    train_dataset.dataset.transform = train_transform
+    val_dataset.dataset.transform = eval_transform
+    test_dataset.dataset.transform = eval_transform
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
@@ -140,11 +160,12 @@ def preprocessing():
 
     USE_GRAYSCALE = False
 
-    transform = get_transforms(use_grayscale=USE_GRAYSCALE)
+    train_transform, eval_transform = get_transforms(use_grayscale=USE_GRAYSCALE)
     BATCH_SIZE = 32
     train_loader, val_loader, test_loader, full_dataset = load_and_split_data(
         dataset_path=DATASET_PATH,
-        transform=transform,
+        train_transform=train_transform,
+        eval_transform=eval_transform,
         batch_size=BATCH_SIZE,
         train_size=0.85,
         val_size=0.075,
