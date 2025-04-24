@@ -9,6 +9,7 @@ import os
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torchvision.transforms.v2 as transforms
 import ignite.handlers as handlers
 import numpy as np
 import random
@@ -28,97 +29,41 @@ from torch.nn import (
 )
 
 
-class RandomHorizontalFlip(nn.Module):
-    def __init__(self, p=0.5):
-        super().__init__()
-        self.p = p
-
-    def forward(self, x):
-        if self.training and random.random() < self.p:
-            return x.flip(3)  # Flip along width dimension
-        return x
-
-
-class RandomVerticalFlip(nn.Module):
-    def __init__(self, p=0.5):
-        super().__init__()
-        self.p = p
-
-    def forward(self, x):
-        if self.training and random.random() < self.p:
-            return x.flip(2)  # Flip along height dimension
-        return x
-
-
-class RandomRotation(nn.Module):
-    def __init__(self, degrees=10, p=0.5):
-        super().__init__()
-        self.degrees = degrees
-        self.p = p
-
-    def forward(self, x):
-        if not self.training or random.random() >= self.p:
-            return x
-
-        # Get device of input tensor
-        device = x.device
-
-        # Convert angle to tensor and move to correct device
-        angle = torch.tensor(
-            random.uniform(-self.degrees, self.degrees) * 3.14159 / 180,
-            device=device,  # Ensure it's on the same device as x
-        )
-
-        # Use tensors all the way
-        cos_val = torch.cos(angle)
-        sin_val = torch.sin(angle)
-
-        theta = torch.tensor(
-            [[cos_val, -sin_val, 0], [sin_val, cos_val, 0]],
-            dtype=torch.float,
-            device=device,  # Ensure it's on the same device as x
-        )
-
-        grid = F.affine_grid(
-            theta.unsqueeze(0).repeat(x.size(0), 1, 1), x.size(), align_corners=False
-        )
-
-        return F.grid_sample(x, grid, align_corners=False)
-
-
 def create_compile_model(channel=3, info=False):
     class FPCNN(nn.Module):
         def __init__(self, channel):
             super(FPCNN, self).__init__()
-            self.augmentation = nn.Sequential(
-                RandomHorizontalFlip(p=0.5),
-                RandomVerticalFlip(p=0.3),
-                RandomRotation(degrees=15, p=0.3),
+            self.augment = transforms.Compose(
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomVerticalFlip(),
+                    transforms.RandomRotation(degrees=15),
+                ]
             )
-            self.conv1 = Conv2d(channel, 16, 3, padding="same")
-            self.batchnorm1 = BatchNorm2d(16)
+            self.conv1 = Conv2d(channel, 32, 3, padding="same")
+            self.batchnorm1 = BatchNorm2d(32)
             self.pool = MaxPool2d(2)
             self.conv_dropout = Dropout2d(p=0.1)
 
-            self.conv2 = Conv2d(16, 32, 3, padding="same")
-            self.batchnorm2 = BatchNorm2d(32)
+            self.conv2 = Conv2d(32, 64, 3, padding="same")
+            self.batchnorm2 = BatchNorm2d(64)
 
-            self.conv3 = Conv2d(32, 64, 3, padding="same")
-            self.batchnorm3 = BatchNorm2d(64)
+            self.conv3 = Conv2d(64, 128, 3, padding="same")
+            self.batchnorm3 = BatchNorm2d(128)
 
-            self.conv4 = Conv2d(64, 128, 3, padding="same")
-            self.batchnorm4 = BatchNorm2d(128)
+            self.conv4 = Conv2d(128, 256, 3, padding="same")
+            self.batchnorm4 = BatchNorm2d(256)
 
-            self.conv5 = Conv2d(128, 256, 3, padding="same")
-            self.batchnorm5 = BatchNorm2d(256)
+            self.conv5 = Conv2d(256, 512, 3, padding="same")
+            self.batchnorm5 = BatchNorm2d(512)
 
-            self.fc1 = Linear(256 * 4 * 4, 516)
+            self.fc1 = Linear(512 * 4 * 4, 516)
             self.dropout = Dropout(0.5)
             self.fc2 = Linear(516, 12)
 
         def forward(self, x):
             if self.training:
-                x = self.augmentation(x)
+                x = self.augment(x)
             x = self.pool(F.relu(self.batchnorm1(self.conv1(x))))
             x = self.conv_dropout(x)
             x = self.pool(F.relu(self.batchnorm2(self.conv2(x))))
@@ -130,7 +75,7 @@ def create_compile_model(channel=3, info=False):
             x = self.pool(F.relu(self.batchnorm5(self.conv5(x))))
             # print(x.shape)
 
-            x = x.view(-1, 256 * 4 * 4)
+            x = x.view(-1, 512 * 4 * 4)
 
             x = F.relu(self.fc1(x))
             x = self.dropout(x)
