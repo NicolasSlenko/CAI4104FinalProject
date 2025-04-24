@@ -131,7 +131,9 @@ def evaluate_model(model, test_loader, device):
 
     class_correct = [0] * len(test_loader.dataset.classes)
     class_total = [0] * len(test_loader.dataset.classes)
-
+    
+    random_correct = 0
+    
     with torch.no_grad():
         for images, labels in test_loader:
             images, labels = images.to(device), labels.to(device)
@@ -141,6 +143,9 @@ def evaluate_model(model, test_loader, device):
             _, preds = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (preds == labels).sum().item()
+            
+            random_preds = torch.randint(0, len(test_loader.dataset.classes), (labels.size(0),), device=device)
+            random_correct += (random_preds == labels).sum().item()
 
             # Per-class accuracy
             for i in range(labels.size(0)):
@@ -151,8 +156,8 @@ def evaluate_model(model, test_loader, device):
 
     test_loss = running_loss / total
     test_accuracy = correct / total
+    random_accuracy = random_correct / total
 
-    # Print per-class accuracy
     print("\nPer-class accuracy:")
     for i, class_name in enumerate(test_loader.dataset.classes):
         if class_total[i] > 0:
@@ -160,6 +165,10 @@ def evaluate_model(model, test_loader, device):
             print(f"    {class_name}: {accuracy:.2f}%")
         else:
             print(f"    {class_name}: N/A (no test samples)")
+    
+    print(f"\nRandom Baseline Accuracy: {random_accuracy * 100:.2f}%")
+    print(f"Model Accuracy: {test_accuracy * 100:.2f}%")
+    print(f"Improvement over Random: {(test_accuracy - random_accuracy) * 100:.2f} percentage points")
 
     return test_loss, test_accuracy
 
