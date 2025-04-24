@@ -18,17 +18,17 @@
 %% Comment out as needed and designate a point of contact
 %% Add / remove names as necessary
 \author{
-        Your Name \\{\em (Point of Contact)} \\
+        Your Name \\
         email1@ufl.edu\\
         \and
-        Member 2's Name \\
-        email2@ufl.edu\\
+        Nicolas Slenko \\
+        nslenko@ufl.edu\\
         \and
-        Member 3's Name \\
-        email3@ufl.edu\\
+        Colin Wishart \\
+        c.wishart@ufl.edu\\
         \and
-        Member 4's Name \\
-        email4@ufl.edu\\
+        Christopher Dowdy \\
+        cdowdy@ufl.edu\\
         \and
         Member 5's Name \\
         email5@ufl.edu\\
@@ -65,6 +65,8 @@ We will use the Adam optimizer and categorical cross-entropy loss function to tr
 
 
 
+
+
 %% TODO: write about your approach / ML pipeline
 %% Must contain:
 %% - How you are trying to solve this problem
@@ -81,14 +83,6 @@ Our data preprocessing pipeline consists of several key steps to prepare the ima
     \item \textbf{Image Resizing:} Although it is assumed that all the images are 128x128 pixels, we still resized all the images to 128x128 pixels to ensure uniformity.
     and that the expected batch size match the input size of the model.
     
-    \item \textbf{Data Augmentation:} Additionally since the given dataset only consists of 4757 images, which is relatively small, we applied data augmentation to just the 
-    training set to artificially increase training diversity. Furthermore, this also act as a regularization technique to prevent 
-    overfitting which we later encountered during training. The data augmentation techniques we used include:
-    \begin{itemize}
-        \item Random horizontal flips
-        \item Random vertical flips
-    \end{itemize}
-    These techiques should help the model generalize better to unseen data as the objects might appear in different orientations.
     \item \textbf{Normalization:} The input were first applied with transform.ToTensor which would have perfomed scaling on the pixel values from the range of [0, 255] to [0, 1]. 
     All images were then normalized using mean = [0.5, 0.5, 0.5] and standard deviation = [0.5, 0.5, 0.5] for each color channel to center the data around 0 and remap it to a range of 
     [-1, 1] and ensure consistent scale.
@@ -99,12 +93,60 @@ Our data preprocessing pipeline consists of several key steps to prepare the ima
         \item Validation set: 15\% of the data
         \item Test set: 15\% of the data
     \end{itemize}
-    The split was performed with stratification to maintain class distribution across splits.
+    We decided on that this data splitting ratio since that is what was recommended for small dataset (under 100k examples) such as the dataset we are using to train this project model.
 \end{itemize}
 
+\subsection{Model Architecture}
 
-% TODO:
-Write here. 
+Since the problem at hand is clearly a multi-class classification problem, we decided to use a convolutional neural network (CNN) architecture which generally performs well on computer vision tasks
+or task related to image data. We implemented a custom CNN architecture with the following layers:
+
+\begin{itemize}
+    \item \textbf{Data Augmentation:} Since the given dataset only consists of 4757 images, which is relatively small, we applied data augmentation to just the
+    training set to artificially increase training diversity. Furthermore, this also act as a regularization technique to prevent overfitting which we later
+    encountered during training. The data augmentation techniques we used include:
+    \begin{itemize}
+        \item Random horizontal flips to 50 percent of the images
+        \item Random vertical flips to 50 percent of the images
+        \item Random rotations (up to 15 degrees) to 50 percent of the images
+    \end{itemize}
+    These techniques should help the model generalize better to unseen data as the objects in real life might appear in different orientations.
+
+    \item \textbf{Convolutional Layers:} Five convolutional blocks, each containing:
+    \begin{itemize}
+        \item A convolutional layer with increasing filter depths (starting from base filters and increasing)
+        \item Batch normalization for further improved training stability
+        \item ReLU activation function
+        \item Max pooling for spatial dimension reduction
+        \item Dropout for regularization
+    \end{itemize}
+    We decided to go with the stretch pants like approach where we made our layers wider and then use dropout in between them.
+
+    \item \textbf{Fully Connected Layers:} Two fully connected layers:
+    \begin{itemize}
+        \item A flatten layer that reshape the 512x4x4 feature map into a 8192-dimensional vector
+        \item A hidden layer with dropout regularization of 0.5 to prevent overfitting
+        \item An output layer with 12 neurons (one for each class)
+    \end{itemize}
+
+    \subsection{Training Strategy}
+
+    \begin{itemize}
+        \item \textbf{Loss Function:} Cross-entropy loss since it is a classification problem with label smoothing of 0.1, which helps prevent the model from becoming overconfident and reduce overfitting
+        
+        \item \textbf{Optimizer:} Adam optimizer with a learning rate of 0.0005 and weight decay (L2 regularization) of 0.0005
+        
+        \item \textbf{Learning Rate Scheduling:} We implemented a ReduceLROnPlateau scheduler that reduces the learning rate by a factor of 0.5 when validation accuracy plateaus for 4 consecutive epochs
+        
+        \item \textbf{Early Stopping:} Training terminates if validation loss doesn't improve for 10 consecutive epochs, preventing overfitting
+        
+        \item \textbf{Model Checkpointing:} We saved both an early-stopped model and the final model after training completion
+    \end{itemize}
+
+    The model was trained on a GPU, with each epoch learning from the entire training dataset followed by evaluation on the validation set.
+\end{itemize}
+
+This architecture was designed to extracting higher-level features through the deep convolutional layers for good performance while still preventing overfitting through regularization techniques.
 
 
 
@@ -118,8 +160,30 @@ Write here.
 %%
 \section{Evaluation Methodology}
 
-% TODO:
-Write here. 
+\begin{itemize}
+    \item \textbf{Metrics:} Since this is a multi-class classification problem, we used the following metrics to evaluate our model:
+    \begin{itemize}
+        \item Accuracy: The ratio of correctly predicted instances to the total instances to evaluate the overall performance of the model
+        \item Per-class accuracy: The accuracy for each class to evaluate the model's performance on each class
+    \end{itemize}
+
+    \item \textbf{Baselines:} We compared our model's performance by evaluating the metrics mentioned above against a random guessing model as a baseline.
+
+    \item \textbf{Data Split:} As mentioned in our preprocessing section, we used a 70\%-15\%-15\% split for training, validation, and testing respectively.
+    
+    \item \textbf{Hyperparameter Tuning:} We experimented with various hyperparameters including:
+    \begin{itemize}
+        \item Different learning rates (0.0001, 0.0005, 0.001)
+        \item Different batch sizes (32, 64, 128) with 64 being the most optimal for learning speed and computation time
+        \item Different dropout rates in both convolutional (0.1) and fully connected (0.5) layers
+        \item Different weight decay values for regularization (0.0001, 0.0005, 0.001)
+        \item Different numbers of convolutional blocks (3, 5, 7) with 5 being the most optimal for learning speed and computation time
+    \end{itemize}
+    
+    \item \textbf{Model Selection:} The final model was selected based on the best accuracy and per class accuracy on the test set. Additionally, we also considered the model's performance on the 
+    validation set to ensure that overfitting was at an acceptable level.
+\end{itemize}
+
 
 
 

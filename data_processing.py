@@ -63,7 +63,7 @@ def load_and_split_data(
     train_size=0.7,
     val_size=0.15,
     test_size=0.15,
-    batch_size=32,
+    batch_size=64,
     random_state=42,
 ):
     """
