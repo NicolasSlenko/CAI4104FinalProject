@@ -26,6 +26,10 @@ from torch.utils.data import DataLoader
 # Import the model creation function from model_setup.py
 from model_setup import create_compile_model
 
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 ######### Functions #########
 
@@ -134,6 +138,9 @@ def evaluate_model(model, test_loader, device):
 
     random_correct = 0
     random_class_correct = [0] * len(test_loader.dataset.classes)
+    
+    all_preds = []
+    all_labels = []
 
     with torch.no_grad():
         for images, labels in test_loader:
@@ -157,6 +164,10 @@ def evaluate_model(model, test_loader, device):
                 class_correct[label] += (pred == label).item()
                 class_total[label] += 1
                 random_class_correct[label] += (random_preds[i] == label).item()
+                
+            all_preds.append(preds.cpu())
+            all_labels.append(labels.cpu())
+            
     test_loss = running_loss / total
     test_accuracy = correct / total
     random_accuracy = random_correct / total
@@ -177,6 +188,36 @@ def evaluate_model(model, test_loader, device):
     print(
         f"Improvement over Baseline Accuracy: {(test_accuracy - random_accuracy) * 100:.2f} percentage points"
     )
+    
+    all_preds = torch.cat(all_preds)
+    all_labels = torch.cat(all_labels)
+
+    all_preds_np = all_preds.numpy()
+    all_labels_np = all_labels.numpy()
+    
+    print("\nClassification Report:")
+    print(classification_report(all_labels, all_preds, target_names=test_loader.dataset.classes))
+    
+    cm = confusion_matrix(all_labels_np, all_preds_np)
+
+    plt.figure(figsize=(10, 8))
+    plt.imshow(cm, cmap='Blues')
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+
+    class_names = test_loader.dataset.classes
+
+    plt.xticks(np.arange(len(class_names)), class_names, rotation=45, ha="right")
+    plt.yticks(np.arange(len(class_names)), class_names)
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, format(cm[i, j], 'd'),
+                     ha="center", va="center",
+                     color="white" if cm[i, j] > cm.max() / 2.0 else "black")
 
     return test_loss, test_accuracy
 

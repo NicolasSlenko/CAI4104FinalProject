@@ -267,6 +267,38 @@ The test set contains a total of 714 images distributed among the 12 classes as 
     \end{tabular}
 \end{table}
 
+\subsection{Classification Report}
+\begin{table}[h!]
+\centering
+\caption{Per-class precision, recall, and F1-score for CNN classification}
+\label{tab:classification_report}
+\begin{tabular}{|l|c|c|c|}
+\hline
+        \textbf{Class}       & \textbf{Precision (\%)} & \textbf{Recall (\%)} & \textbf{F1-Score (\%)} \\ \hline
+        Backpack             & 93.00                    & 76.00                 & 84.00                  \\
+        Book                 & 68.00                    & 77.00                 & 73.00                  \\
+        Calculator           & 85.00                    & 88.00                 & 86.00                  \\
+        Chair                & 66.00                    & 65.00                 & 66.00                  \\
+        Clock                & 81.00                    & 88.00                 & 84.00                  \\
+        Desk                 & 61.00                    & 60.00                 & 61.00                  \\
+        Keychain             & 83.00                    & 85.00                 & 84.00                  \\
+        Laptop               & 83.00                    & 80.00                 & 81.00                  \\
+        Paper                & 85.00                    & 88.00                 & 86.00                  \\
+        Pen                  & 88.00                    & 89.00                 & 88.00                  \\
+        Phone                & 68.00                    & 68.00                 & 68.00                  \\
+        Water Bottle         & 84.00                    & 80.00                 & 82.00                  \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Confusion Matrix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/confusion.png}
+    \caption{Confusion matrix for CNN classification model evaluated on the test set. Each row represents the true class, and each column represents the predicted class. The model shows high classification accuracy for most classes, especially calculator, pen, and paper, while confusion is observed between similar objects such as desk and chair, and phone and calculator.}
+    \label{fig:confusion}
+\end{figure}
+
 \subsection{Results Analysis}
 
 Table 1 already shows that our CNN model achieves an overall test accuracy of 78.43\% versus only 7.56\% for the random guessing baseline an improvement of 
@@ -304,15 +336,14 @@ Several mid-sized classes performed particularly well:
   \item \textbf{Clock (57 images)} and \textbf{Calculator (65 images)} both achieved nearly 88\% accuracy.
   \item \textbf{Paper (57 images)} and \textbf{Keychain (59 images)} also scored above 84\%.
 \end{itemize}
-These results further confirms the idea that the CNN benefits from learning distinct shapes and textures, as many of these objects have well-defined and distinct appearance.
+These results further confirms the idea that the CNN benefits from learning distinct shapes and textures, as many of these objects have well-defined and distinct appearances.
 
 \paragraph{Weaker Classes and Ambiguity}
 \begin{itemize}
   \item \textbf{Desk (55 images):} 60.00\%
   \item \textbf{Chair (60 images):} 65.00\%
 \end{itemize}
-Classes with lower accuracy like \emph{Desk} and \emph{Chair} suggest that visual ambiguity may hinder classification, even when test counts are moderate. The given images of desks or chairs may have appeared in a wider range of angles, 
-lighting conditions compared to other classes. Furthermore, the many different designs and appearances that they might come in could have also made it harder for the model to generalize.
+Classes with lower accuracy like \emph{Desk} and \emph{Chair} suggest that visual ambiguity may hinder classification, even when test counts are moderate. The given images of desks or chairs may have appeared in a wider range of angles, lighting conditions compared to other classes. Furthermore, the many different designs and appearances that they might come in could have also made it harder for the model to generalize. Additionally, this low accuracy may be attributed to pictures in the \emph{Chair} and \emph{Desk} class also containing objects of the other classes, as pictures with desks in them often also have chairs and pictures with chairs in them often have desks. This same confusion likely occurred with other classes as well, specifically misclassifying the desk class frequently because the desk images may contain laptops, papers, or water bottles.
 
 \subsection{Summary}
 Regardless of a few underperforming classes, our model has significantly outperformed the random guessing baseline by 70.87 percentage points overall, reaching a 78.43\% accuracy, with every class achieving more than a 50-point gain. 
@@ -329,14 +360,42 @@ This demonstrates that our CNN model is effective at classifying images into the
 %% You can also discuss limitations here if you want.
 %%
 \section{Conclusions}
+This project successfully demonstrated the effectiveness of convolutional neural networks in multi-class image classification tasks, even with a small dataset. The results demonstrate:
 
-% TODO:
-Write here. 
+\begin{itemize}
+\item \textbf{Effectiveness of Data Augmentation:} Using data augmentation techniques significantly improved our model's generalization ability, preventing overfitting and improving performance, which is important when working with limited data.
+
+\item \textbf{Regularization Strategies:} Using dropout layers, batch normalization, and weight decay effectively combated overfitting issues, demonstrating the importance of regularization techniques in deep learning models.
+
+\item \textbf{Hyperparameter Optimization:} Fine tuning of hyperparameters, including learning rate, batch size, and model complexity, was essential in maximizing model accuracy.
+
+\item \textbf{Class Distinguishability vs. Frequency:} Model performance was impacted greatly by the clarity and distinctiveness of class features rather than class frequency, emphasizing that dataset quality and diversity in features is just as if not more important than having a large number of images per class.
+
+\end{itemize}
+
+\paragraph{Future Work:}
+Several steps could be taken to further improve the performance and robustness of our classification model:
+
+\begin{itemize}
+\item \textbf{Better Labeling:} The worst performing class, \emph{Desk}, would benefit from multi-label classification,  allowing images to have multiple labels if they contain several objects (e.g., desk + chair + laptop).
+
+\item \textbf{Transfer Learning:} Leveraging pre-trained models through transfer learning might significantly boost accuracy and be particularly beneficial for classes with ambiguous features.
+
+\item \textbf{Ensemble Methods:} Implementing an ensemble of CNN architectures or using techniques such as bagging or boosting could further increase the accuracy and generalization capabilities of the classifier.
+
+\end{itemize}
+
+In conclusion, this project illustrates the usefulness of convolutional neural networks in image classification tasks, emphasizing the importance of effective data preprocessing, strategic model design, and sufficient regularization to achieve reliable, accurate results.
 
 %%%%
 
 \bibliography{refs}
 \bibliographystyle{plain}
+
+\begin{itemize}
+\item \textbf Course Slides
+
+\end{itemize}
 
 
 \end{document} % end tag of the document
