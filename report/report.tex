@@ -3,6 +3,7 @@
 \usepackage[left=0.8in,right=0.8in,top=0.15in,bottom=0.8in]{geometry}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
 \urlstyle{rm}
@@ -245,7 +246,23 @@ The test set contains a total of 714 images distributed among the 12 classes as 
         \textbf{Overall}     & \textbf{78.43}             & \textbf{7.56}                  & \textbf{70.87}            \\ \hline
     \end{tabular}
 \end{table}
-    
+
+\subsection{Training Process Visualization}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/loss_curves.png}
+    \caption{Model loss during training. The training loss (solid line) and validation loss (dashed line) both decrease over time, indicating successful learning.}
+    \label{fig:model_loss}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/accuracy_curves.png}
+    \caption{Model accuracy during training. The training accuracy (solid line) and validation accuracy (dashed line) both increase over time, with final validation accuracy reaching approximately 88.85\%.}
+    \label{fig:model_accuracy}
+\end{figure}
+
 \subsection{Results Analysis}
 
 Table 1 already shows that our CNN model achieves an overall test accuracy of 78.43\% versus only 7.56\% for the random guessing baseline an improvement of 
