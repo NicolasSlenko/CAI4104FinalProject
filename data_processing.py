@@ -40,12 +40,8 @@ def get_transforms(use_grayscale=False):
         train_transform = transforms.Compose(
             [
                 transforms.Resize((128, 128)),
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomVerticalFlip(),
-                # transforms.GaussianBlur((3,3)),
-                # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.3, hue=0.3),
                 transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                transforms.Normalize((0.5,) * 3, (0.5,) * 3),
             ]
         )
         eval_transform = transforms.Compose(
@@ -67,7 +63,7 @@ def load_and_split_data(
     train_size=0.7,
     val_size=0.15,
     test_size=0.15,
-    batch_size=32,
+    batch_size=64,
     random_state=42,
 ):
     """
@@ -104,7 +100,7 @@ def load_and_split_data(
     train_dataset = torch.utils.data.Subset(full_dataset, train_indices)
     val_dataset = torch.utils.data.Subset(full_dataset, val_indices)
     test_dataset = torch.utils.data.Subset(full_dataset, test_indices)
-    
+
     train_dataset.dataset.transform = train_transform
     val_dataset.dataset.transform = eval_transform
     test_dataset.dataset.transform = eval_transform
@@ -167,9 +163,9 @@ def preprocessing():
         train_transform=train_transform,
         eval_transform=eval_transform,
         batch_size=BATCH_SIZE,
-        train_size=0.85,
-        val_size=0.075,
-        test_size=0.075,
+        train_size=0.70,
+        val_size=0.15,
+        test_size=0.15,
     )
 
     # visualize_class_distribution(full_dataset)

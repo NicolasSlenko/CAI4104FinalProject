@@ -132,6 +132,9 @@ def evaluate_model(model, test_loader, device):
     class_correct = [0] * len(test_loader.dataset.classes)
     class_total = [0] * len(test_loader.dataset.classes)
 
+    random_correct = 0
+    random_class_correct = [0] * len(test_loader.dataset.classes)
+
     with torch.no_grad():
         for images, labels in test_loader:
             images, labels = images.to(device), labels.to(device)
@@ -142,24 +145,38 @@ def evaluate_model(model, test_loader, device):
             total += labels.size(0)
             correct += (preds == labels).sum().item()
 
+            random_preds = torch.randint(
+                0, len(test_loader.dataset.classes), (labels.size(0),), device=device
+            )
+            random_correct += (random_preds == labels).sum().item()
+
             # Per-class accuracy
             for i in range(labels.size(0)):
                 label = labels[i]
                 pred = preds[i]
                 class_correct[label] += (pred == label).item()
                 class_total[label] += 1
-
+                random_class_correct[label] += (random_preds[i] == label).item()
     test_loss = running_loss / total
     test_accuracy = correct / total
+    random_accuracy = random_correct / total
 
-    # Print per-class accuracy
     print("\nPer-class accuracy:")
     for i, class_name in enumerate(test_loader.dataset.classes):
         if class_total[i] > 0:
             accuracy = 100 * class_correct[i] / class_total[i]
-            print(f"    {class_name}: {accuracy:.2f}%")
+            random_class_accuracy = 100 * random_class_correct[i] / class_total[i]
+            print(
+                f"    {class_name}: {accuracy:.2f}% (Random baseline: {random_class_accuracy:.2f}%)"
+            )
         else:
             print(f"    {class_name}: N/A (no test samples)")
+
+    print(f"Model Accuracy: {test_accuracy * 100:.2f}%")
+    print(f"\nRandom Baseline Accuracy: {random_accuracy * 100:.2f}%")
+    print(
+        f"Improvement over Baseline Accuracy: {(test_accuracy - random_accuracy) * 100:.2f} percentage points"
+    )
 
     return test_loss, test_accuracy
 

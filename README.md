@@ -18,7 +18,7 @@ The `data_processing.py` file contains several functions for loading, processing
   Creates a bar chart showing the distribution of images across different classes in the dataset, helping to identify any class imbalance issues.
 
 - **`preprocessing()`**  
-  The main function that orchestrates the data processing pipeline. It creates the transformations, loads and splits the data using a 85/7.5/7.5 train/val/test split with batch size 32, and returns the DataLoader objects and the full dataset.
+  The main function that orchestrates the data processing pipeline. It creates the transformations, loads and splits the data using a 70/15/15 train/val/test split with batch size 32, and returns the DataLoader objects and the full dataset.
 
 ### Usage
 
@@ -48,22 +48,34 @@ The `model_setup.py` file defines the model architecture and training procedure:
 
 The model is a Fully-Parametrized Convolutional Neural Network (FPCNN) with the following architecture:
 
-- Four convolutional blocks, each consisting of:
-  - 2D Convolution layer
+- Five convolutional blocks, each consisting of:
+  - 2D Convolution layer (from 32 to 512 filters)
   - Batch Normalization
   - ReLU activation
   - Max Pooling (2x2)
-- Feature dimensions grow from 16 to 128 through the convolutional layers
-- Three fully connected layers (1024, 512, 256 units) with dropout (0.5)
-- Output layer with 12 units (one for each class)
+  - Dropout (0.1)
+- Feature dimensions grow from 32→64→128→256→512 through the convolutional layers
+- Fully connected layers:
+  - Flatten layer that reshapes 512×4×4 features into 8192-dimensional vector
+  - Hidden layer with 516 units
+  - Dropout (0.5)
+  - Output layer with 12 units (one for each class)
+
+### Data Augmentation
+
+The model implements on-the-fly data augmentation during training that includes:
+- Random horizontal flips
+- Random vertical flips 
+- Random rotations (up to 15 degrees)
 
 ### Training Function
 
 The `train_model()` function handles the training process:
 
 - Uses Adam optimizer with learning rate 0.0005 and weight decay 0.0005
+- Uses CrossEntropyLoss with label smoothing 0.1
 - Implements early stopping with patience=10
-- Uses ReduceLROnPlateau scheduler to reduce learning rate on plateau
+- Uses ReduceLROnPlateau scheduler to reduce learning rate by factor of 0.5 when validation accuracy plateaus for 4 consecutive epochs
 - Saves the best model during training as `checkpoints/early_stop_model.pth`
 - Saves the final model after training as `checkpoints/final_model.pth`
 
@@ -72,8 +84,19 @@ The `train_model()` function handles the training process:
 The `model_train.py` file contains the main function to run the training pipeline:
 
 1. Load and preprocess the data
-2. Create and compile the model
-3. Train the model for up to 100 epochs with early stopping
+2. Extract test data to a separate folder for later evaluation
+3. Create and compile the model
+4. Train the model for up to 100 epochs with early stopping
+
+## Test Data Counter
+
+The `test_data_counter.py` utility allows you to count the number of images per class in the test dataset:
+
+```bash
+python test_data_counter.py
+```
+
+This script outputs the number of images for each class in the test dataset, which can be useful for understanding the distribution of your evaluation data.
 
 ## Evaluation
 
@@ -89,12 +112,20 @@ This script:
 1. Loads a trained model from the checkpoint
 2. Evaluates it on the test dataset
 3. Reports overall test loss and accuracy, as well as per-class accuracy
+4. Compares results against a random guessing baseline
 
 ### Available Checkpoints
 
 Two model checkpoints are available in the `checkpoints` directory:
 - `early_stop_model.pth`: Model saved at the point of early stopping
 - `final_model.pth`: Model saved after training completion
+
+### Results
+
+The model achieves an overall test accuracy of 78.43% compared to the random guessing baseline of 7.56%, which is an improvement of 70.87 percentage points. Different classes show varying performance:
+
+- Highest Performance: Pen (89.36%), Clock (87.72%), Calculator (87.69%)
+- Lower Performance: Desk (60.00%), Chair (65.00%), Phone (68.49%)
 
 ## Running the Project
 
