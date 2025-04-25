@@ -78,6 +78,7 @@ The `train_model()` function handles the training process:
 - Uses ReduceLROnPlateau scheduler to reduce learning rate by factor of 0.5 when validation accuracy plateaus for 4 consecutive epochs
 - Saves the best model during training as `checkpoints/early_stop_model.pth`
 - Saves the final model after training as `checkpoints/final_model.pth`
+- Tracks and saves training history (loss and accuracy) for later visualization
 
 ## Model Training
 
@@ -97,6 +98,22 @@ python test_data_counter.py
 ```
 
 This script outputs the number of images for each class in the test dataset, which can be useful for understanding the distribution of your evaluation data.
+
+## Learning Curve Visualization
+
+The `plot_learning_curves.py` script allows you to visualize the learning progress of trained models:
+
+```bash
+python plot_learning_curves.py [--history_files HISTORY_FILES]
+```
+
+This script:
+- Loads training history from JSON files (saved alongside model checkpoints)
+- Plots training and validation accuracy curves
+- Marks and annotates the best validation accuracy
+- Saves the visualization as 'accuracy_curves.png'
+
+By default, it will visualize both the early-stopped and final model histories from the checkpoints directory.
 
 ## Evaluation
 
@@ -137,4 +154,8 @@ The model achieves an overall test accuracy of 78.43% compared to the random gue
 3. Evaluate the model:
    ```bash
    python eval.py --model_path checkpoints/final_model.pth --test_data project_test_data --group_id YOUR_GROUP_ID --project_title "YOUR_PROJECT_TITLE"
+   ```
+4. Visualize learning curves:
+   ```bash
+   python plot_learning_curves.py
    ``` 
