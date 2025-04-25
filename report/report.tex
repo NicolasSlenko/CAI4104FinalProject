@@ -4,6 +4,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{float}
 
 \hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
 \urlstyle{rm}
@@ -149,6 +150,20 @@ This architecture was designed to extracting higher-level features through the d
     \item \textbf{Model Checkpointing:} We saved both an early-stopped model and the final model after training completion for faster evaluation and testing
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/loss_curves.png}
+    \caption{Model loss during training. The training loss (solid line) and validation loss (dashed line) both decrease over time, indicating successful learning.}
+    \label{fig:model_loss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/accuracy_curves.png}
+    \caption{Model accuracy during training. The training accuracy (solid line) and validation accuracy (dashed line) both increase over time, with final validation accuracy reaching approximately 88.85\%. Note that this validation accuracy differs from the 78.43\% test accuracy reported in Table \ref{tab:test_summary}, as they are evaluated on different datasets.}
+    \label{fig:model_accuracy}
+\end{figure}
+
 
 
 
@@ -246,22 +261,6 @@ The test set contains a total of 714 images distributed among the 12 classes as 
         \textbf{Overall}     & \textbf{78.43}             & \textbf{7.56}                  & \textbf{70.87}            \\ \hline
     \end{tabular}
 \end{table}
-
-\subsection{Training Process Visualization}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/loss_curves.png}
-    \caption{Model loss during training. The training loss (solid line) and validation loss (dashed line) both decrease over time, indicating successful learning.}
-    \label{fig:model_loss}
-\end{figure}
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/accuracy_curves.png}
-    \caption{Model accuracy during training. The training accuracy (solid line) and validation accuracy (dashed line) both increase over time, with final validation accuracy reaching approximately 88.85\%.}
-    \label{fig:model_accuracy}
-\end{figure}
 
 \subsection{Results Analysis}
 
