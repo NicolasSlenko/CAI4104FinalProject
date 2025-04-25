@@ -101,19 +101,25 @@ This script outputs the number of images for each class in the test dataset, whi
 
 ## Learning Curve Visualization
 
-The `plot_learning_curves.py` script allows you to visualize the learning progress of trained models:
+The `plot_learning_curves.py` script allows you to visualize the learning progress of the trained model:
 
 ```bash
-python plot_learning_curves.py [--history_files HISTORY_FILES]
+python plot_learning_curves.py
 ```
 
 This script:
-- Loads training history from JSON files (saved alongside model checkpoints)
-- Plots training and validation accuracy curves
-- Marks and annotates the best validation accuracy
-- Saves the visualization as 'accuracy_curves.png'
+- Loads training history from the final model's JSON history file
+- Creates two visualizations:
+  1. **Accuracy Curves**: Plots training and validation accuracy over epochs
+  2. **Loss Curves**: Plots training and validation loss over epochs
+- Marks and annotates the best validation accuracy and the lowest validation loss
+- Saves the visualizations as 'accuracy_curves.png' and 'loss_curves.png'
 
-By default, it will visualize both the early-stopped and final model histories from the checkpoints directory.
+These visualizations are useful for:
+- Identifying potential overfitting or underfitting
+- Understanding convergence behaviors
+- Analyzing the best points of model performance
+- Documentation and reporting
 
 ## Evaluation
 
@@ -122,7 +128,7 @@ The `eval.py` script is used to evaluate the trained model:
 ### Usage
 
 ```bash
-python eval.py --model_path YOUR_SAVED_MODEL --test_data project_test_data --group_id YOUR_GROUP_ID --project_title "YOUR_PROJECT_TITLE"
+python eval.py --model_path checkpoints/final_model.pth --test_data project_test_data --group_id YOUR_GROUP_ID --project_title "YOUR_PROJECT_TITLE"
 ```
 
 This script:
@@ -131,18 +137,32 @@ This script:
 3. Reports overall test loss and accuracy, as well as per-class accuracy
 4. Compares results against a random guessing baseline
 
-### Available Checkpoints
+### Available Checkpoint
 
-Two model checkpoints are available in the `checkpoints` directory:
-- `early_stop_model.pth`: Model saved at the point of early stopping
-- `final_model.pth`: Model saved after training completion
+The final model checkpoint is available in the `checkpoints` directory:
+- `final_model.pth`: Complete trained model with best performance
 
 ### Results
 
-The model achieves an overall test accuracy of 78.43% compared to the random guessing baseline of 7.56%, which is an improvement of 70.87 percentage points. Different classes show varying performance:
+The final model achieves an overall test accuracy of 78.43% compared to the random guessing baseline of 8.68%, which is an improvement of 69.75 percentage points. Different classes show varying performance:
 
-- Highest Performance: Pen (89.36%), Clock (87.72%), Calculator (87.69%)
-- Lower Performance: Desk (60.00%), Chair (65.00%), Phone (68.49%)
+- **High Performance (>85%)**: 
+  - Pen (89.36%)
+  - Clock (87.72%)  
+  - Paper (87.72%)
+  - Calculator (87.69%)
+  - Keychain (84.75%)
+
+- **Good Performance (70-85%)**:
+  - Laptop (80.00%)
+  - Water Bottle (80.00%)
+  - Book (77.36%)
+  - Backpack (76.47%)
+
+- **Lower Performance (<70%)**:
+  - Phone (68.49%)
+  - Chair (65.00%)
+  - Desk (60.00%)
 
 ## Running the Project
 
