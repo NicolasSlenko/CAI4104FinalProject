@@ -110,7 +110,6 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
     scheduler = ReduceLROnPlateau(optimizer, "max", factor=0.5, patience=4)
 
     os.makedirs("checkpoints", exist_ok=True)
-    early_stop_path = "checkpoints/early_stop_model.pth"
     final_model_path = "checkpoints/final_model.pth"
     best_model_state = None
     
@@ -167,7 +166,7 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
         val_loss /= len(val_loader.dataset)
         val_acc = correct_val_num / total_val_size
         
-        # Update history
+        #update history
         history["train_loss"].append(train_loss)
         history["train_acc"].append(train_acc)
         history["val_loss"].append(val_loss)
@@ -177,18 +176,15 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
         scheduler.step(val_acc)
         print(scheduler.get_last_lr())
 
-        print(
+        print( 
             f"Epoch: {epoch+1} | Training Loss: {train_loss:.4f}, Training Accuracy: {100*train_acc:.2f}% | Validation Loss: {val_loss:.4f} Validation Accuracy: {100*val_acc:.2f}%"
         )
         if val_loss < best_val_loss:
             patience_count = 0
             best_val_loss = val_loss
             best_model_state = model.state_dict().copy()
-            # Save the current best model
+            #save the current best model
             torch.save(best_model_state, early_stop_path)
-            # Save history for early stop model
-            with open(early_stop_path.replace('.pth', '_history.json'), 'w') as f:
-                json.dump(history, f)
         else:
             patience_count += 1
             print("worse")
