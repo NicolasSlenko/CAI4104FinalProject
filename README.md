@@ -1,5 +1,12 @@
 # Image Classification Project
 
+## Group Members
+- Khang Tran
+- Nicolas Slenko
+- Colin Wishart
+- Christopher Dowdy
+- Mauro Chavez Vega
+
 This project implements an image classification model using PyTorch to classify objects such as backpack, book, calculator, chair, clock, desk, keychain, laptop, paper, pen, phone, and water bottle.
 
 ## Data Processing Module
@@ -76,7 +83,6 @@ The `train_model()` function handles the training process:
 - Uses CrossEntropyLoss with label smoothing 0.1
 - Implements early stopping with patience=10
 - Uses ReduceLROnPlateau scheduler to reduce learning rate by factor of 0.5 when validation accuracy plateaus for 4 consecutive epochs
-- Saves the best model during training as `checkpoints/early_stop_model.pth`
 - Saves the final model after training as `checkpoints/final_model.pth`
 - Tracks and saves training history (loss and accuracy) for later visualization
 
@@ -115,12 +121,6 @@ This script:
 - Marks and annotates the best validation accuracy and the lowest validation loss
 - Saves the visualizations as 'accuracy_curves.png' and 'loss_curves.png'
 
-These visualizations are useful for:
-- Identifying potential overfitting or underfitting
-- Understanding convergence behaviors
-- Analyzing the best points of model performance
-- Documentation and reporting
-
 ## Evaluation
 
 The `eval.py` script is used to evaluate the trained model:
@@ -144,7 +144,7 @@ The final model checkpoint is available in the `checkpoints` directory:
 
 ### Results
 
-The final model achieves an overall test accuracy of 78.43% compared to the random guessing baseline of 8.68%, which is an improvement of 69.75 percentage points. Different classes show varying performance:
+The final model achieves an overall test accuracy of 78.43% compared to the random guessing baseline of 7.56%, which is an improvement of 70.87 percentage points. Different classes show varying performance:
 
 - **High Performance (>85%)**: 
   - Pen (89.36%)
