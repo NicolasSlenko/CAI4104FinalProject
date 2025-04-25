@@ -67,9 +67,12 @@ goal of this project is to correctly classify images into one of the 12 classes 
 convolutional neural network (CNN) to classify the images. The CNN will consist of several convolutional layers, followed by max pooling layers, and finally fully connected layers. 
 We will use the Adam optimizer and categorical cross-entropy loss function to train the model. The model will be evaluated using accuracy and per class accuracy.
 
-
-
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/class_distribution.png}
+    \caption{Distribution of images across the 12 object classes in the dataset. The dataset is relatively balanced, with each class containing between 360-420 images.}
+    \label{fig:class_distribution}
+\end{figure}
 
 %% TODO: write about your approach / ML pipeline
 %% Must contain:
@@ -149,6 +152,8 @@ This architecture was designed to extracting higher-level features through the d
     
     \item \textbf{Model Checkpointing:} We saved both an early-stopped model and the final model after training completion for faster evaluation and testing
 \end{itemize}
+
+\subsection{Training Process Visualization}
 
 \begin{figure}[H]
     \centering
