@@ -111,6 +111,7 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
 
     os.makedirs("checkpoints", exist_ok=True)
     final_model_path = "checkpoints/final_model.pth"
+    early_stopping_path = "checkpoints/early_stopping_model.pth"
     best_model_state = None
     
     # Track training history
@@ -183,8 +184,7 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
             patience_count = 0
             best_val_loss = val_loss
             best_model_state = model.state_dict().copy()
-            #save the current best model
-            torch.save(best_model_state, early_stop_path)
+            torch.save(best_model_state, early_stopping_path)
         else:
             patience_count += 1
             print("worse")
@@ -195,8 +195,8 @@ def train_model(device, train_loader, val_loader, dataset, max_epochs, patience=
 
     elapsed_training_time = end - start
     print(f"Training and Validation time: {elapsed_training_time}")
-    # Save the model after training is complete
+    #save the model after training is complete
     torch.save(model.state_dict(), final_model_path)
-    # Save history for final model
+    #save history for final model
     with open(final_model_path.replace('.pth', '_history.json'), 'w') as f:
         json.dump(history, f)

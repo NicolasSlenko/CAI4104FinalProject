@@ -103,13 +103,6 @@ def plot_loss_curves(history_files):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot learning curves from model history files")
-    parser.add_argument(
-        "--history_files", 
-        nargs='+',
-        default=["checkpoints/final_model_history.json"],
-        help="List of history JSON files to analyze"
-    )
-    
     args = parser.parse_args()
     
     print("Plotting learning curves for models:")
@@ -119,5 +112,5 @@ if __name__ == "__main__":
     plot_accuracy_curves(args.history_files)
     plot_loss_curves(args.history_files)
     
-    # Show plots after saving both
+    #show plots after saving both
     plt.show() 
